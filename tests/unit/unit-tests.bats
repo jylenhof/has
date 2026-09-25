@@ -107,6 +107,15 @@ teardown() {
   [ "$(echo "${output}" | grep ${fancyx} | grep "foobar")" ]
 }
 
+@test "env var 'HAS_ALLOW_UNSAFE' is case insensitive" {
+  for value in Y yes Yes YES; do
+    HAS_ALLOW_UNSAFE=$value run $has foobar
+
+    [ "$status" -eq 1 ]
+    [ -z "$(echo "${output}" | grep "foobar not understood")" ]
+  done
+}
+
 @test "status code reflects number of failed commands" {
   HAS_ALLOW_UNSAFE=y run $has foobar git barbaz
 
@@ -210,7 +219,7 @@ teardown() {
 }
 
 @test "status code in quiet mode still equal to number of failed commands" {
-  HAS_ALLOW_UNSAFE=y run $has -q foobar bc git barbaz
+  HAS_ALLOW_UNSAFE=y run $has -q foobar ls git barbaz
 
   [ "$status" -eq 2 ]
   [ -z "${output}" ]
@@ -245,8 +254,11 @@ __assert_usage() {
     [ "${lines[0]}" = 'Usage: has [OPTION] <command-names>...' ]
     [ "${lines[1]}" = 'Has checks the presence of various command line tools on the PATH and reports their installed version.' ]
     [ "${lines[2]}" = 'Options:' ]
-    [ "${lines[3]}" = '        -q              Silent mode' ]
-    [ "${lines[4]}" = '        -h, --help      Display this help text and quit' ]
-    [ "${lines[5]}" = '        -v, --version   Show version number and quit' ]
-    [ "${lines[6]}" = 'Examples: has git curl node' ]
+    [ "${lines[3]}" = '        --color-auto    Enable color output automatically (default)' ]
+    [ "${lines[4]}" = '        --color-always  Always enable color output' ]
+    [ "${lines[5]}" = '        --color-never   Disable color output' ]
+    [ "${lines[6]}" = '        -q              Silent mode' ]
+    [ "${lines[7]}" = '        -h, --help      Display this help text and quit' ]
+    [ "${lines[8]}" = '        -v, --version   Show version number and quit' ]
+    [ "${lines[9]}" = 'Examples: has git curl node' ]
 }
